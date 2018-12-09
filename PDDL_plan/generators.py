@@ -226,7 +226,7 @@ def get_pull_fn(task, context, collisions=True):
             n = q_knots.shape[0]
             q_knots_kuka = np.zeros((n, 7))
             for i, q_knot in enumerate(q_knots):
-                q_knots_kuka[i] = plant.tree().get_positions_from_array(robot, q_knot)
+                q_knots_kuka[i] = plant.tree().GetPositionsFromArray(robot, q_knot)
 
             return q_knots_kuka
 

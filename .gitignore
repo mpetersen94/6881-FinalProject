@@ -1,0 +1,7 @@
+*.pyc
+
+PDDL_plan/statistics/
+PDDL_plan/temp/*
+PDDL_plan/system_view.*
+
+install/*
