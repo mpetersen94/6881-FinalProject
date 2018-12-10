@@ -8,7 +8,7 @@ from motion import plan_joint_motion, plan_waypoints_joint_motion, \
 from utils import get_relative_transform, set_world_pose, set_joint_position, get_body_pose, \
     get_base_body, sample_aabb_placement, get_movable_joints, get_model_name, set_joint_positions, get_box_from_geom, \
     exists_colliding_pair, get_model_bodies, aabb_contains_point, bodies_from_models, get_model_aabb
-from trajectory import optimal_trajectory
+from trajectory import get_signed_dist_fn, optimal_trajectory
 
 from pydrake.trajectories import PiecewisePolynomial
 from pydrake.multibody import inverse_kinematics
@@ -330,11 +330,13 @@ def get_motion_fn(task, context, collisions=True):
         collision_pairs = set(product(moving, obstacles)) if collisions else set()
         collision_fn = get_collision_fn(task.diagram, task.diagram_context, task.mbp, task.scene_graph,
                                         joints, collision_pairs=collision_pairs, attachments=attachments)
-
+        signed_dist_fn = get_signed_dist_fn(task.diagram, task.diagram_context, task.mbp, task.scene_graph,
+                                            joints, collision_pairs=collision_pairs, attachments=attachments)
         open_wsg50_gripper(task.mbp, context, gripper)
         # path = plan_joint_motion(joints, conf1.positions, conf2.positions, collision_fn=collision_fn,
                                  # restarts=10, iterations=75, smooth=50)
-        path = optimal_trajectory(joints, conf1.positions, conf2.positions)
+        path = optimal_trajectory(joints, conf1.positions, conf2.positions,
+                                  signed_dist_fn, len(collision_pairs))
         if path is None:
             return None
         traj = Trajectory([Conf(joints, q) for q in path], attachments=attachments)
